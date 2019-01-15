@@ -35,8 +35,6 @@ module.exports.run = async (MAIN, raid, main_area, sub_area, embed_area, server)
     let geofences = raid_channel[1].geofences.split(',');
     let channel = MAIN.channels.get(raid_channel[0]);
     let filter = MAIN.Filters.get(raid_channel[1].filter);
-    // let raid_template_name = raid_channel[1].raid_template;
-    // let egg_template_name = raid_channel[1].egg_template;
     let message_templates = {
         raid:raid_channel[1].raid_template,
         egg:raid_channel[1].egg_template
@@ -86,7 +84,7 @@ function send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, s
   let end_time = MAIN.Bot_Time(raid.end,'1');
   let hatch_mins = Math.floor((raid.start-(time_now/1000))/60);
   let end_mins = Math.floor((raid.end-(time_now/1000))/60);
-    
+
   MAIN.Static_Map_Tile(raid.latitude,raid.longitude,'raid').then(async function(imgUrl){
 
     if(MAIN.debug.Raids == 'ENABLED'){ console.info('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] [Modules] [raids.js] Map Tile for '+type+' Retrieved.'); }
@@ -251,16 +249,6 @@ function send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, s
           raid_embed.addField(replace_variables_raid(fieldtitle),replace_variables_raid(fieldtext));
           count++; 
         }
-        
-        // // CREATE THE RAID EMBED
-        // raid_embed = new Discord.RichEmbed().setThumbnail(raid_url).setColor(embed_color)
-        //   .setTitle('**'+pokemon_name+'** has taken over a Gym!')
-        //   .setDescription(move_name_1+' '+move_type_1+' / '+move_name_2+' '+move_type_2)
-        //   .addField(gym_name+' | '+embed_area, pokemon_type+'\nWeaknesses:', false)
-        //   .addField('Raid Ends: '+end_time+' (*'+end_mins+' Mins*)', 'Level '+raid.level+' | '+defending_team+raid_sponsor, false)
-        //   .addField('Directions:','[Google Maps](https://www.google.com/maps?q='+raid.latitude+','+raid.longitude+') | [Apple Maps](http://maps.apple.com/maps?daddr='+raid.latitude+','+raid.longitude+'&z=10&t=s&dirflg=w) | [Waze](https://waze.com/ul?ll='+raid.latitude+','+raid.longitude+'&navigate=yes)',false)
-        //   .attachFile(attachment)
-        //   .setImage('attachment://Raid_Alert.png');
 
         // CHECK DISCORD CONFIG
         if(MAIN.config.RAID.Discord_Feeds == 'ENABLED'){
