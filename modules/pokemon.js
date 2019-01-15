@@ -143,13 +143,13 @@ function send_pokemon(MAIN, internal_value, sighting, channel, time_now, main_ar
     let weather_emoji = '';
     let weather = '';
     switch(sighting.weather){
-      case 1: weather_emoji = MAIN.emotes.clear; weather = 'clear'; break;
-      case 2: weather_emoji = MAIN.emotes.rain; weather = 'raid'; break;
-      case 3: weather_emoji = MAIN.emotes.partlyCloudy; weather = 'partly Cloudy'; break;
-      case 4: weather_emoji = MAIN.emotes.cloudy; weather = 'cloudy'; break;
-      case 5: weather_emoji = MAIN.emotes.windy; weather = 'windy'; break;
-      case 6: weather_emoji = MAIN.emotes.snow; weather = 'snow'; break;
-      case 7: weather_emoji = MAIN.emotes.fog; weather = 'fog'; break;
+      case 1: weather_emoji = MAIN.emotes.clear+' *Boosted*'; weather = 'clear'; break;
+      case 2: weather_emoji = MAIN.emotes.rain+' *Boosted*'; weather = 'raid'; break;
+      case 3: weather_emoji = MAIN.emotes.partlyCloudy+' *Boosted*'; weather = 'partly Cloudy'; break;
+      case 4: weather_emoji = MAIN.emotes.cloudy+' *Boosted*'; weather = 'cloudy'; break;
+      case 5: weather_emoji = MAIN.emotes.windy+' *Boosted*'; weather = 'windy'; break;
+      case 6: weather_emoji = MAIN.emotes.snow+' *Boosted*'; weather = 'snow'; break;
+      case 7: weather_emoji = MAIN.emotes.fog+' *Boosted*'; weather = 'fog'; break;
     }
 
     // REPLACE TAGS IN MESSAGES WITH ACTUAL VALUES

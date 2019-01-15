@@ -16,7 +16,7 @@
 
 
 [Default]
-title = <pokemon_name> <iv_a>/<iv_d>/<iv_s> (<iv>%) <weather_emoji> *Boosted*
+title = <pokemon_name> <iv_a>/<iv_d>/<iv_s> (<iv>%) <weather_emoji>
 description = 
 content = 
 fieldtitle[] = Level <pokemon_level> | CP <cp><gender>
