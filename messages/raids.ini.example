@@ -1,10 +1,22 @@
-; [Default_Egg]
-; .addField(raid.gym_name, embed_area, false)
-; .addField('Hatches: '+hatch_time+' (*'+hatch_mins+' Mins*)', 
-;   'Level '+raid.level+' | '+defending_team+raid_sponsor, false)
-; .addField('Directions:','[Google Maps](https://www.google.com/maps?q='+raid.latitude+'
-;   '+raid.longitude+') | [Apple Maps](http://maps.apple.com/maps?daddr='+raid.latitude+','+raid.longitude+'&z=10&t=s&dirflg=w) | [Waze](https://waze.com/ul?ll='+raid.latitude+','+raid.longitude+'&navigate=yes)',false)
-          
+;Usage:
+; title is the discord embed message title, will be highlighted
+; description is the discord description field, normal text.
+; content this is where you can include <@##########> role\user tags.
+; fieldtitle[] will be highlighted
+; fieldtext[] shows up under fieldtitle, normal text
+; fieldtitle[] and fieldtext[] must be used in pairs, you can leave it blank if you want but it must be assigned
+;  You can have up to 25 field sets
+;
+;Available text substitutions:
+; <geofence> <lat> <lon> <googlemaps> <applemaps> <waze>
+; <gym_name> <raid_level> <defending_team> <raid_sponsor>
+; for raids:
+;  <move_name_1> <move_type_1> <move_name_2> <move_type_2>
+;  <pokemon_name> <pokemon_type> <end_time> <end_mins>
+; for eggs:
+;  <hatch_time> <hatch_mins>
+;
+
 [Default_Raid]
 title = **<pokemon_name>** has taken over a Gym!
 description = <move_name_1> <move_type_1> / <move_name_2> <move_type_2>

@@ -1,11 +1,10 @@
 ;Usage:
-; [Default] and [Default NoIv] must be defined
 ; title is the discord embed message title, will be highlighted
 ; description is the discord description field, normal text. default is blank
 ; content this is where you can include <@##########> role\user tags. default is blank
 ; fieldtitle[] will be highlighted
 ; fieldtext[] shows up under fieldtitle, normal text
-; fieldtitle[] and fieldtext[] must be used in pairs, you can leave it blank if you want but it must be assigned
+; fieldtitle[] and fieldtext[] must be used in pairs, you can leave one blank if you want but it must be assigned
 ;  You can have up to 25 field sets
 ;
 ;Available text substitutions:
