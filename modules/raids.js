@@ -35,7 +35,13 @@ module.exports.run = async (MAIN, raid, main_area, sub_area, embed_area, server)
     let geofences = raid_channel[1].geofences.split(',');
     let channel = MAIN.channels.get(raid_channel[0]);
     let filter = MAIN.Filters.get(raid_channel[1].filter);
-
+    // let raid_template_name = raid_channel[1].raid_template;
+    // let egg_template_name = raid_channel[1].egg_template;
+    let message_templates = {
+        raid:raid_channel[1].raid_template,
+        egg:raid_channel[1].egg_template
+    }
+    
     // THROW ERRORS AND BREAK FOR INVALID DATA
     if(!filter){ console.error('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] The filter defined for'+raid_channel[0]+' does not appear to exist.'); }
     else if(!channel){ console.error('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] The channel '+raid_channel[0]+' does not appear to exist.'); }
@@ -52,11 +58,11 @@ module.exports.run = async (MAIN, raid, main_area, sub_area, embed_area, server)
           // CHECK FOR EX ELIGIBLE REQUIREMENT
           if(filter.Ex_Eligible_Only == undefined || filter.Ex_Eligible_Only != true){
             if(MAIN.debug.Raids == 'ENABLED'){ console.info('[DEBUG] [Modules] [raids.js] Raid Passed Filters for '+raid_channel[0]+'.'); }
-            send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, server);
+            send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, server,message_templates);
           }
           else if(filter.Ex_Eligible_Only == raid.sponsor_id){
             if(MAIN.debug.Raids == 'ENABLED'){ console.info('[DEBUG] [Modules] [raids.js] Raid Passed Filters for '+raid_channel[0]+'.'); }
-            send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, server);
+            send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, server,message_templates);
           }
         }
         else{
@@ -73,14 +79,14 @@ module.exports.run = async (MAIN, raid, main_area, sub_area, embed_area, server)
   });
 }
 
-function send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, server){
+function send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, server, message_templates){
 
   // VARIABLES
   let time_now = new Date().getTime(), hatch_time = MAIN.Bot_Time(raid.start,'1');
   let end_time = MAIN.Bot_Time(raid.end,'1');
   let hatch_mins = Math.floor((raid.start-(time_now/1000))/60);
   let end_mins = Math.floor((raid.end-(time_now/1000))/60);
-
+    
   MAIN.Static_Map_Tile(raid.latitude,raid.longitude,'raid').then(async function(imgUrl){
 
     if(MAIN.debug.Raids == 'ENABLED'){ console.info('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] [Modules] [raids.js] Map Tile for '+type+' Retrieved.'); }
@@ -91,10 +97,10 @@ function send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, s
     // DETERMINE GYM CONTROL
     let defending_team = '';
     switch(raid.team_id){
-      case 1: defending_team = MAIN.emotes.mystic+' Gym'; break;
-      case 2: defending_team = MAIN.emotes.valor+' Gym'; break;
-      case 3: defending_team = MAIN.emotes.instinct+' Gym'; break;
-      default: defending_team = 'Uncontested Gym';
+      case 1: defending_team = MAIN.emotes.mystic; break;
+      case 2: defending_team = MAIN.emotes.valor; break;
+      case 3: defending_team = MAIN.emotes.instinct; break;
+      default: defending_team = 'Uncontested';
     }
 
     // GET RAID LEVEL
@@ -130,13 +136,46 @@ function send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, s
           case 5: embed_thumb = 'https://i.imgur.com/jaTCRXJ.png'; break;
         }
 
+        // REPLACE TAGS IN MESSAGES WITH ACTUAL VALUES
+        function replace_variables_egg(string) {
+          var mapObj = {
+             '<hatch_time>':hatch_time,
+             '<hatch_mins>':hatch_mins,
+             '<thumbnail>':embed_thumb,
+             '<raid_level>':raid.level,
+             '<egg_level>':raid.level,
+             '<defending_team>':defending_team,
+             '<sponsor>':raid_sponsor,
+             '<raid_sponsor>':raid_sponsor,
+             '<gym_name>':raid.gym_name,
+             '<geofence>':embed_area,
+             '<lat>':raid.latitude,
+             '<lon>':raid.longitude,
+             '<googlemaps>':'https://www.google.com/maps?q='+raid.latitude+','+raid.longitude,
+             '<applemaps>':'http://maps.apple.com/maps?daddr='+raid.latitude+','+raid.longitude+'&z=10&t=s&dirflg=w',
+             '<waze>':'https://waze.com/ul?ll='+raid.latitude+','+raid.longitude+'&navigate=yes'
+          };
+          var re = new RegExp(Object.keys(mapObj).join("|"),"gi");
+          string = string.replace(re, function(matched){return mapObj[matched];});
+          // THIS REPLACE IS NEEDED BECAUSE INI IS LOADED IN UTF-8 WHICH DOESNT SUPPORT \n
+          return string.replace('\\'+'n','\n');
+        }
+        
         // CREATE THE EGG EMBED
-        raid_embed = new Discord.RichEmbed().setThumbnail(embed_thumb).setColor(embed_color)
-          .addField(raid.gym_name, embed_area, false)
-          .addField('Hatches: '+hatch_time+' (*'+hatch_mins+' Mins*)', 'Level '+raid.level+' | '+defending_team+raid_sponsor, false)
-          .addField('Directions:','[Google Maps](https://www.google.com/maps?q='+raid.latitude+','+raid.longitude+') | [Apple Maps](http://maps.apple.com/maps?daddr='+raid.latitude+','+raid.longitude+'&z=10&t=s&dirflg=w) | [Waze](https://waze.com/ul?ll='+raid.latitude+','+raid.longitude+'&navigate=yes)',false)
-          .attachFile(attachment)
-          .setImage('attachment://Raid_Alert.png');
+        var egg_template = MAIN.Raid_Messages[message_templates['egg']];
+        raid_embed = new Discord.RichEmbed()
+          .attachFile(attachment).setImage('attachment://Raid_Alert.png')
+          .setThumbnail(embed_thumb).setColor(embed_color)
+          .setTitle(replace_variables_egg(egg_template['title']))
+          .setDescription(replace_variables_egg(egg_template['description'])
+        );
+        var count = 0;
+        for(var i = 0; i < egg_template['fieldtitle'].length; ++i){
+          var fieldtitle = (egg_template['fieldtitle'][i] == "") ? "." : egg_template['fieldtitle'][i];
+          var fieldtext = (egg_template['fieldtext'][i] == "") ? "." : egg_template['fieldtext'][i];;
+          raid_embed.addField(replace_variables_egg(fieldtitle),replace_variables_egg(fieldtext));
+          count++; 
+        }
 
         // CHECK DISCORD CONFIG
         if(MAIN.config.RAID.Discord_Feeds == 'ENABLED'){
@@ -167,15 +206,61 @@ function send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, s
         if(!MAIN.moves[raid.move_1].name){ console.error('Move ID #'+raid.move_1+' not found in pokemon.json. Please report to the Discord.'); }
         if(!MAIN.moves[raid.move_2].name){ console.error('Move ID #'+raid.move_2+' not found in pokemon.json. Please report to the Discord.'); }
 
+        // REPLACE TAGS IN MESSAGES WITH ACTUAL VALUES
+        function replace_variables_raid(string) {
+          var mapObj = {
+             '<end_time>':end_time,
+             '<end_mins>':end_mins,
+             '<thumbnail>':raid_url,
+             '<raid_level>':raid.level,
+             '<move_name_1>':move_name_1,
+             '<move_type_1>':move_type_1,
+             '<move_name_2>':move_name_2,
+             '<move_type_2>':move_type_2,
+             '<gym_name>':raid.gym_name,
+             '<pokemon_name>':pokemon_name,
+             '<pokemon_type>':pokemon_type,
+             '<defending_team>':defending_team,
+             '<sponsor>':raid_sponsor,
+             '<raid_sponsor>':raid_sponsor,
+             '<geofence>':embed_area,
+             '<lat>':raid.latitude,
+             '<lon>':raid.longitude,
+             '<googlemaps>':'https://www.google.com/maps?q='+raid.latitude+','+raid.longitude,
+             '<applemaps>':'http://maps.apple.com/maps?daddr='+raid.latitude+','+raid.longitude+'&z=10&t=s&dirflg=w',
+             '<waze>':'https://waze.com/ul?ll='+raid.latitude+','+raid.longitude+'&navigate=yes'
+          };
+          var re = new RegExp(Object.keys(mapObj).join("|"),"gi");
+          string = string.replace(re, function(matched){return mapObj[matched];});
+          // THIS REPLACE IS NEEDED BECAUSE INI IS LOADED IN UTF-8 WHICH DOESNT SUPPORT \n
+          return string.replace('\\'+'n','\n');
+        }
+        
         // CREATE THE RAID EMBED
-        raid_embed = new Discord.RichEmbed().setThumbnail(raid_url).setColor(embed_color)
-          .setTitle('**'+pokemon_name+'** has taken over a Gym!')
-          .setDescription(move_name_1+' '+move_type_1+' / '+move_name_2+' '+move_type_2)
-          .addField(gym_name+' | '+embed_area, pokemon_type+'\nWeaknesses:', false)
-          .addField('Raid Ends: '+end_time+' (*'+end_mins+' Mins*)', 'Level '+raid.level+' | '+defending_team+raid_sponsor, false)
-          .addField('Directions:','[Google Maps](https://www.google.com/maps?q='+raid.latitude+','+raid.longitude+') | [Apple Maps](http://maps.apple.com/maps?daddr='+raid.latitude+','+raid.longitude+'&z=10&t=s&dirflg=w) | [Waze](https://waze.com/ul?ll='+raid.latitude+','+raid.longitude+'&navigate=yes)',false)
-          .attachFile(attachment)
-          .setImage('attachment://Raid_Alert.png');
+        var raid_template = MAIN.Raid_Messages[message_templates['raid']];
+        raid_embed = new Discord.RichEmbed()
+          .attachFile(attachment).setImage('attachment://Raid_Alert.png')
+          .setThumbnail(raid_url).setColor(embed_color)
+          .setTitle(replace_variables_raid(raid_template['title']))
+          .setDescription(replace_variables_raid(raid_template['description'])
+        );
+        var count = 0;
+        for(var i = 0; i < raid_template['fieldtitle'].length; ++i){
+          var fieldtitle = (raid_template['fieldtitle'][i] == "") ? "." : raid_template['fieldtitle'][i];
+          var fieldtext = (raid_template['fieldtext'][i] == "") ? "." : raid_template['fieldtext'][i];;
+          raid_embed.addField(replace_variables_raid(fieldtitle),replace_variables_raid(fieldtext));
+          count++; 
+        }
+        
+        // // CREATE THE RAID EMBED
+        // raid_embed = new Discord.RichEmbed().setThumbnail(raid_url).setColor(embed_color)
+        //   .setTitle('**'+pokemon_name+'** has taken over a Gym!')
+        //   .setDescription(move_name_1+' '+move_type_1+' / '+move_name_2+' '+move_type_2)
+        //   .addField(gym_name+' | '+embed_area, pokemon_type+'\nWeaknesses:', false)
+        //   .addField('Raid Ends: '+end_time+' (*'+end_mins+' Mins*)', 'Level '+raid.level+' | '+defending_team+raid_sponsor, false)
+        //   .addField('Directions:','[Google Maps](https://www.google.com/maps?q='+raid.latitude+','+raid.longitude+') | [Apple Maps](http://maps.apple.com/maps?daddr='+raid.latitude+','+raid.longitude+'&z=10&t=s&dirflg=w) | [Waze](https://waze.com/ul?ll='+raid.latitude+','+raid.longitude+'&navigate=yes)',false)
+        //   .attachFile(attachment)
+        //   .setImage('attachment://Raid_Alert.png');
 
         // CHECK DISCORD CONFIG
         if(MAIN.config.RAID.Discord_Feeds == 'ENABLED'){

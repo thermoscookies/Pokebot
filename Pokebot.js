@@ -47,7 +47,20 @@ function load_files(){
 const raid_channels = ini.parse(fs.readFileSync('./config/channels_raids.ini', 'utf-8'));
 function load_raid_channels(){
   MAIN.Raid_Channels = [];
-  for (var key in raid_channels){ MAIN.Raid_Channels.push([key, raid_channels[key]]); }
+  for (var key in raid_channels){ 
+        // CHECK IF ASSIGNED raid_template EXISTS, IF NOT, SET TO 'Default_Raid'
+    if (!('raid_template' in raid_channels[key]) || raid_channels[key].raid_template == "") {raid_channels[key].raid_template = "Default_Raid";}
+    if (!(raid_channels[key].raid_template in MAIN.Raid_Messages)) {
+      console.error('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] raid_template \''+ raid_channels[key].raid_template+'\' for Channel '+key+' is missing, setting to \'Default_Raid\'.');
+      raid_channels[key].raid_template = "Default_Raid";      
+    }
+    // CHECK IF ASSIGNED egg_template EXISTS FOR NO IVS, IF NOT, SET TO 'Default_Egg'
+    if (!('egg_template' in raid_channels[key]) || raid_channels[key].egg_template == "") {raid_channels[key].egg_template = "Default_Egg";}
+    if (!(raid_channels[key].egg_template in MAIN.Raid_Messages)) {
+      console.error('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] egg_template \''+ raid_channels[key].egg_template+'\' for Channel '+key+' is missing, setting to \'Default_Egg\'.');
+      raid_channels[key].egg_template = "Default_Egg";      
+    }
+    MAIN.Raid_Channels.push([key, raid_channels[key]]); }
   console.log('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] Loaded Raid Channels.');
 }
 
@@ -55,7 +68,21 @@ function load_raid_channels(){
 const pokemon_channels = ini.parse(fs.readFileSync('./config/channels_pokemon.ini', 'utf-8'));
 function load_pokemon_channels(){
   MAIN.Pokemon_Channels = [];
-  for (var key in pokemon_channels){ MAIN.Pokemon_Channels.push([key, pokemon_channels[key]]); }
+  for (var key in pokemon_channels){ 
+    // CHECK IF ASSIGNED message_template EXISTS, IF NOT, SET TO 'Default'
+    if (!('message_template' in pokemon_channels[key]) || pokemon_channels[key].message_template == "") {pokemon_channels[key].message_template = "Default";}
+    if (!(pokemon_channels[key].message_template in MAIN.Pokemon_Messages)) {
+      console.error('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] message_template \''+ pokemon_channels[key].message_template+'\' for Channel '+key+' is missing, setting to \'Default\'.');
+      pokemon_channels[key].message_template = "Default";      
+    }
+    // CHECK IF ASSIGNED message_template EXISTS FOR NO IVS, IF NOT, SET TO 'Default_noivs'
+    if (!('message_template_noivs' in pokemon_channels[key]) || pokemon_channels[key].message_template_noivs == "") {pokemon_channels[key].message_template_noivs = "Default_noivs";}
+    if (!(pokemon_channels[key].message_template_noivs in MAIN.Pokemon_Messages)) {
+      console.error('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] message_template_noivs \''+ pokemon_channels[key].message_template_noivs+'\' for Channel '+key+' is missing, setting to \'Default_noivs\'.');
+      pokemon_channels[key].message_template_noivs = "Default_noivs";      
+    }
+    MAIN.Pokemon_Channels.push([key, pokemon_channels[key]]); 
+  }
   console.log('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] Loaded Pokémon Channels');
 }
 
@@ -65,6 +92,87 @@ function load_quest_channels(){
   MAIN.Quest_Channels = [];
   for (var key in quest_channels){ MAIN.Quest_Channels.push([key, quest_channels[key]]); }
   console.log('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] Loaded Quest Channels.');
+}
+
+// LOAD RAID MESSAGES
+const raid_messages = ini.parse(fs.readFileSync('./messages/raids.ini', 'utf-8'));
+function load_raid_messages(){
+  MAIN.Raid_Messages = {};
+  for (var key in raid_messages){ 
+    MAIN.Raid_Messages[key] = {};
+    for (var subkey in raid_messages[key]) {MAIN.Raid_Messages[key][subkey] = raid_messages[key][subkey];}
+  }
+  // CHECK IF 'Default_Raid' message_template EXISTS, IF NOT, CREATE IT
+  if (!('Default_Raid' in MAIN.Raid_Messages)) {
+    MAIN.Raid_Messages['Default_Raid'] = {
+                              'title':'**<pokemon_name>** has taken over a Gym!',
+                              'description':'<move_name_1> <move_type_1> / <move_name_2> <move_type_2>',
+                              'content':''
+                            };
+    MAIN.Raid_Messages['Default_Raid']['fieldtitle'] = [];
+    MAIN.Raid_Messages['Default_Raid']['fieldtext'] = [];
+    MAIN.Raid_Messages['Default_Raid']['fieldtitle'].push('<gym_name> | <geofence>');
+    MAIN.Raid_Messages['Default_Raid']['fieldtext'].push('<pokemon_type>\nWeaknesses:');
+    MAIN.Raid_Messages['Default_Raid']['fieldtitle'].push('Raid Ends: <end_time> (*<end_mins> Mins*)');
+    MAIN.Raid_Messages['Default_Raid']['fieldtext'].push('Level <raid_level> | <defending_team>+<raid_sponsor>');
+    MAIN.Raid_Messages['Default_Raid']['fieldtitle'].push('Directions:');
+    MAIN.Raid_Messages['Default_Raid']['fieldtext'].push('[Google Maps](<googlemaps>) | [Apple Maps](<applemaps>) | [Waze](<waze>)');
+  }
+  if (!('Default_Egg' in MAIN.Raid_Messages)) {
+    MAIN.Raid_Messages['Default_Egg'] = {
+                              'title':'',
+                              'description':'',
+                              'content':''
+                            };
+    MAIN.Raid_Messages['Default_Egg']['fieldtitle'] = [];
+    MAIN.Raid_Messages['Default_Egg']['fieldtext'] = [];
+    MAIN.Raid_Messages['Default_Egg']['fieldtitle'].push('<gym_name>');
+    MAIN.Raid_Messages['Default_Egg']['fieldtext'].push('<geofence>');
+    MAIN.Raid_Messages['Default_Egg']['fieldtitle'].push('Hatches: <hatch_time> (*<hatch_mins> Mins*)');
+    MAIN.Raid_Messages['Default_Egg']['fieldtext'].push('Level <raid_level> | <defending_team><raid_sponsor>');
+    MAIN.Raid_Messages['Default_Egg']['fieldtitle'].push('Directions:');
+    MAIN.Raid_Messages['Default_Egg']['fieldtext'].push('[Google Maps](<googlemaps>) | [Apple Maps](<applemaps>) | [Waze](<waze>)');
+  }
+  console.log('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] Loaded Raid Messages.');
+}
+
+// LOAD POKEMON MESSAGES
+const pokemon_messages = ini.parse(fs.readFileSync('./messages/pokemon.ini', 'utf-8'));
+function load_pokemon_messages(){
+  MAIN.Pokemon_Messages = {};
+  for (var key in pokemon_messages){ 
+    MAIN.Pokemon_Messages[key] = {};
+    for (var subkey in pokemon_messages[key]) {MAIN.Pokemon_Messages[key][subkey] = pokemon_messages[key][subkey];}
+  }
+  // CHECK IF 'Default' message_template EXISTS, IF NOT, CREATE IT
+  if (!('Default' in MAIN.Pokemon_Messages)) {
+    MAIN.Pokemon_Messages['Default'] = {
+                              'title':'<pokemon_name> <iv_a>/<iv_d>/<iv_s> (<iv>%)<weather_boost>',
+                              'description':'',
+                              'content':''
+                            };
+    MAIN.Pokemon_Messages['Default']['fieldtitle'] = [];
+    MAIN.Pokemon_Messages['Default']['fieldtext'] = [];
+    MAIN.Pokemon_Messages['Default']['fieldtitle'].push('Level <pokemon_level> | CP <cp><gender>');
+    MAIN.Pokemon_Messages['Default']['fieldtext'].push('<move_name_1><move_type_1> / <move_name_2> <move_type_2>');
+    MAIN.Pokemon_Messages['Default']['fieldtitle'].push('Disappears: <hide_time> (*<hide_minutes> Mins*)');
+    MAIN.Pokemon_Messages['Default']['fieldtext'].push('Height: <height> | Weight: <weight> \n <pokemon_type>');
+    MAIN.Pokemon_Messages['Default']['fieldtitle'].push('<geofence> | Directions:');
+    MAIN.Pokemon_Messages['Default']['fieldtext'].push('[Google Maps](<googlemaps>) | [Apple Maps](<applemaps>) | [Waze](<waze>)');
+  }
+  // CHECK IF 'Default_noivs' message_template EXISTS, IF NOT, CREATE IT
+  if (!('Default_noivs' in MAIN.Pokemon_Messages)) {
+    MAIN.Pokemon_Messages['Default'] = {
+                              'title':'<pokemon_name> <weather_boost>',
+                              'description':'Disappears: <hide_time> (*<hide_minutes> Mins*)',
+                              'content':''
+                            };
+    MAIN.Pokemon_Messages['Default']['fieldtitle'] = [];
+    MAIN.Pokemon_Messages['Default']['fieldtext'] = [];
+    MAIN.Pokemon_Messages['Default']['fieldtitle'].push('<geofence> | Directions:');
+    MAIN.Pokemon_Messages['Default']['fieldtext'].push('[Google Maps](<googlemaps>) | [Apple Maps](<applemaps>) | [Waze](<waze>)');
+  }
+  console.log('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] Loaded Pokemon Messages.');
 }
 
 // DEFINE AND LOAD MODULES
@@ -218,10 +326,10 @@ MAIN.Get_Sprite = (form, id) => {
   return spriteUrl;
 }
 
-// CHOOSE NEXT BOT AND SEND EMBED
-MAIN.Send_Embed = (embed, channelID) => {
+// CHOOSE NEXT BOT AND SEND EMBED with optional content for tagging roles
+MAIN.Send_Embed = (embed, channelID, content = '') => {
   if(MAIN.Next_Bot == MAIN.BOTS.length-1 && MAIN.BOTS[0]){ MAIN.Next_Bot = 0; } else{ MAIN.Next_Bot++; }
-	return MAIN.BOTS[MAIN.Next_Bot].channels.get(channelID).send(embed).catch( error => { pokebotRestart(); console.error(embed,error); });
+	return MAIN.BOTS[MAIN.Next_Bot].channels.get(channelID).send(content, embed).catch( error => { pokebotRestart(); console.error(embed,error); });
 }
 
 // CHOOSE NEXT BOT AND SEND EMBED
@@ -478,6 +586,8 @@ MAIN.start = async (type) => {
   await load_files();
   await load_modules();
   await load_commands();
+  await load_raid_messages();
+  await load_pokemon_messages();
   await load_raid_channels();
   await load_quest_channels();
   await load_pokemon_channels();

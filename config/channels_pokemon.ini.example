@@ -2,11 +2,14 @@
 ; [CHANNEL ID]
 ; geofences = geofence name,geofence name,geofence name
 ; filter = filtername.json
+; message_template = templatename
+; message_template_noivs = templatename_noivs
 
-; "geofences" can either be an area name set in your geofences.json
-; OR the name of a discord in discords.ini or a mix of both.
+; "geofences" can either be an area name set in your geofences.json OR the default_geofence of a discord.
 ; Separate geofence names with a comma.
 ; "filter" must be the file name of the filter you with to use for that channel.
+; "message_template" is optional, but if set should match a template from messages/pokemon.ini
+; "message_template_noivs" same as above, but used when iv's are not available but we still need to send
 
 [507626057277505552]
 geofences = Tallahassee
