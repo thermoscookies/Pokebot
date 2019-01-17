@@ -197,9 +197,9 @@ function send_pokemon(MAIN, internal_value, sighting, channel, time_now, main_ar
       .setDescription(replace_variables(message_template['description']));
       var count = 0;
       for(var i = 0; i < message_template['fieldtitle'].length; ++i){
-        var fieldtitle = (message_template['fieldtitle'][i] == "") ? "." : message_template['fieldtitle'][i];
-        var fieldtext = (message_template['fieldtext'][i] == "") ? "." : message_template['fieldtext'][i];;
-        pokemon_embed.addField(replace_variables(fieldtitle),replace_variables(fieldtext));
+        var fieldtitle = message_template['fieldtitle'][i];
+        var fieldtext = message_template['fieldtext'][i];;
+        pokemon_embed.addField(replace_variables(fieldtitle)+'_ _',replace_variables(fieldtext)+'_ _');
         count++; 
       }
 
@@ -210,99 +210,3 @@ function send_pokemon(MAIN, internal_value, sighting, channel, time_now, main_ar
     }
   }); return;
 }
-
-// async function send_without_iv(MAIN, sighting, channel, time_now, main_area, sub_area, embed_area, server, message_template_name){
-
-//   // FETCH THE MAP TILE
-//   MAIN.Static_Map_Tile(sighting.latitude,sighting.longitude,'pokemon').then(async function(img_url){
-
-//     // DEFINE VARIABLES
-//     let hide_time = await MAIN.Bot_Time(sighting.disappear_time,'1');
-//     let hide_minutes = Math.floor((sighting.disappear_time-(time_now/1000))/60);
-
-//     // ATTACH THE MAP TILE
-//     let attachment = new Discord.Attachment(img_url, 'Pokemon_Alert.png');
-
-//     // DETERMINE POKEMON NAME
-//     let pokemon_name = MAIN.pokemon[sighting.pokemon_id].name;
-
-//     // GET POKEMON TYPE(S) AND EMOTE
-//     let pokemon_type = '';
-//     MAIN.pokemon[sighting.pokemon_id].types.forEach((type) => {
-//       pokemon_type += type+' '+MAIN.emotes[type.toLowerCase()]+' / ';
-//     }); pokemon_type = pokemon_type.slice(0,-3);
-
-//     // GET SPRITE IMAGE
-//     let pokemon_url = await MAIN.Get_Sprite(sighting.form, sighting.pokemon_id);
-
-//     // GET GENDER
-//     let gender = '';
-//     switch(sighting.gender){
-//       case 1: gender = ' | ♂Male'; break;
-//       case 2: gender = ' | ♀Female'; break;
-//     }
-
-//     // GET WEATHER BOOST
-//     // GET WEATHER BOOST
-//     let weather_boost = '';
-//     switch(sighting.weather){
-//       case 1: weather_boost = ' '+MAIN.emotes.clear+' *Boosted*'; break;
-//       case 2: weather_boost = ' '+MAIN.emotes.rain+' *Boosted*'; break;
-//       case 3: weather_boost = ' '+MAIN.emotes.partlyCloudy+' *Boosted*'; break;
-//       case 4: weather_boost = ' '+MAIN.emotes.cloudy+' *Boosted*'; break;
-//       case 5: weather_boost = ' '+MAIN.emotes.windy+' *Boosted*'; break;
-//       case 6: weather_boost = ' '+MAIN.emotes.snow+' *Boosted*'; break;
-//       case 7: weather_boost = ' '+MAIN.emotes.fog+' *Boosted*'; break;
-//     }
-
-//     // REPLACE TAGS IN MESSAGES WITH ACTUAL VALUES
-//     function replace_variables(string) {
-//       var mapObj = {
-//         '<hide_time>':hide_time,
-//         '<hide_minutes>':hide_minutes,
-//         '<pokemon_name>':pokemon_name,
-//         '<pokemon_type>':pokemon_type,
-//         '<pokemon_url>':pokemon_url,
-//         '<gender>':gender,
-//         '<weather_boost>':weather_boost,
-//         '<geofence>':embed_area,
-//         '<lat>':sighting.latitude,
-//         '<lon>':sighting.longitude,
-//         '<googlemaps>':'https://www.google.com/maps?q='+sighting.latitude+','+sighting.longitude,
-//         '<applemaps>':'http://maps.apple.com/maps?daddr='+sighting.latitude+','+sighting.longitude+'&z=10&t=s&dirflg=w',
-//         '<waze>':'https://waze.com/ul?ll='+sighting.latitude+','+sighting.longitude+'&navigate=yes'
-//       };
-//       var re = new RegExp(Object.keys(mapObj).join("|"),"gi");
-//       string = string.replace(re, function(matched){return mapObj[matched];});
-//       // THIS REPLACE IS NEEDED BECAUSE INI IS LOADED IN UTF-8 WHICH DOESNT SUPPORT \n
-//       return string.replace('\\'+'n','\n');
-//     }
-    
-//     // // CREATE AND SEND THE EMBED
-//     // let pokemon_embed = new Discord.RichEmbed()
-//     //   .attachFile(attachment).setImage('attachment://Pokemon_Alert.png')
-//     //   .setColor('00ccff').setThumbnail(pokemon_url)
-//     //   .setTitle('A Wild **'+name+'** has Appeared!')
-//     //   .addField('Disappears: '+hide_time+' (*'+hide_minutes+' Mins*)', embed_area+weather_boost+'\n'+pokemon_type, false)
-//     //   .addField('Directions:','[Google Maps](https://www.google.com/maps?q='+sighting.latitude+','+sighting.longitude+') | [Apple Maps](http://maps.apple.com/maps?daddr='+sighting.latitude+','+sighting.longitude+'&z=10&t=s&dirflg=w) | [Waze](https://waze.com/ul?ll='+sighting.latitude+','+sighting.longitude+'&navigate=yes)');
-//     // CREATE AND SEND THE EMBED
-//     var message_template = MAIN.Pokemon_Messages[message_template_name]
-//     let pokemon_embed = new Discord.RichEmbed()
-//       .attachFile(attachment).setImage('attachment://Pokemon_Alert.png')
-//       .setColor('00ccff').setThumbnail(pokemon_url)
-//       .setTitle(replace_variables(message_template['title']))
-//       .setDescription(replace_variables(message_template['description']));
-//       var count = 0;
-//       for(var i = 0; i < message_template['fieldtitle'].length; ++i){
-//         var fieldtitle = (message_template['fieldtitle'][i] == "") ? "." : message_template['fieldtitle'][i];
-//         var fieldtext = (message_template['fieldtext'][i] == "") ? "." : message_template['fieldtext'][i];;
-//         pokemon_embed.addField(replace_variables(fieldtitle),replace_variables(fieldtext));
-//         count++; 
-//       }
-//     // CHECK DISCORD CONFIG
-//     if(MAIN.config.POKEMON.Discord_Feeds == 'ENABLED'){
-//       if(MAIN.logging == 'ENABLED'){ console.info('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] [Modules] Sent a Pokémon to '+channel.guild.name+' ('+channel.id+').'); }
-//       MAIN.Send_Embed(pokemon_embed, channel.id);
-//     }
-//   }); return;
-// }

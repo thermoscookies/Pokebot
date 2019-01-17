@@ -169,9 +169,9 @@ function send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, s
         );
         var count = 0;
         for(var i = 0; i < egg_template['fieldtitle'].length; ++i){
-          var fieldtitle = (egg_template['fieldtitle'][i] == "") ? "." : egg_template['fieldtitle'][i];
-          var fieldtext = (egg_template['fieldtext'][i] == "") ? "." : egg_template['fieldtext'][i];;
-          raid_embed.addField(replace_variables_egg(fieldtitle),replace_variables_egg(fieldtext));
+          var fieldtitle = egg_template['fieldtitle'][i];
+          var fieldtext = egg_template['fieldtext'][i];
+          raid_embed.addField(replace_variables_egg(fieldtitle)+'_ _',replace_variables_egg(fieldtext)+'_ _');
           count++; 
         }
 
@@ -244,9 +244,9 @@ function send_raid(MAIN, channel, raid, type, main_area, sub_area, embed_area, s
         );
         var count = 0;
         for(var i = 0; i < raid_template['fieldtitle'].length; ++i){
-          var fieldtitle = (raid_template['fieldtitle'][i] == "") ? "." : raid_template['fieldtitle'][i];
-          var fieldtext = (raid_template['fieldtext'][i] == "") ? "." : raid_template['fieldtext'][i];;
-          raid_embed.addField(replace_variables_raid(fieldtitle),replace_variables_raid(fieldtext));
+          var fieldtitle = raid_template['fieldtitle'][i];
+          var fieldtext = raid_template['fieldtext'][i];
+          raid_embed.addField(replace_variables_raid(fieldtitle)+'_ _',replace_variables_raid(fieldtext)+'_ _');
           count++; 
         }
 
