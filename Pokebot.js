@@ -95,7 +95,9 @@ function load_quest_channels(){
 }
 
 // LOAD RAID MESSAGES
-const raid_messages = ini.parse(fs.readFileSync('./messages/raids.ini', 'utf-8'));
+var raid_messages_init = {};
+try {raid_messages_init = ini.parse(fs.readFileSync('./messages/raids.ini', 'utf-8'));} catch (err) {raid_messages_init = {};}
+const raid_messages = raid_messages_init;
 function load_raid_messages(){
   MAIN.Raid_Messages = {};
   for (var key in raid_messages){ 
@@ -137,7 +139,9 @@ function load_raid_messages(){
 }
 
 // LOAD POKEMON MESSAGES
-const pokemon_messages = ini.parse(fs.readFileSync('./messages/pokemon.ini', 'utf-8'));
+var pokemon_messages_init = {};
+try {pokemon_messages_init = ini.parse(fs.readFileSync('./messages/pokemon.ini', 'utf-8'));} catch (err) {pokemon_messages_init = {};}
+const pokemon_messages = pokemon_messages_init;
 function load_pokemon_messages(){
   MAIN.Pokemon_Messages = {};
   for (var key in pokemon_messages){ 
@@ -162,15 +166,15 @@ function load_pokemon_messages(){
   }
   // CHECK IF 'Default_noivs' message_template EXISTS, IF NOT, CREATE IT
   if (!('Default_noivs' in MAIN.Pokemon_Messages)) {
-    MAIN.Pokemon_Messages['Default'] = {
+    MAIN.Pokemon_Messages['Default_noivs'] = {
                               'title':'<pokemon_name> <weather_boost>',
                               'description':'Disappears: <hide_time> (*<hide_minutes> Mins*)',
                               'content':''
                             };
-    MAIN.Pokemon_Messages['Default']['fieldtitle'] = [];
-    MAIN.Pokemon_Messages['Default']['fieldtext'] = [];
-    MAIN.Pokemon_Messages['Default']['fieldtitle'].push('<geofence> | Directions:');
-    MAIN.Pokemon_Messages['Default']['fieldtext'].push('[Google Maps](<googlemaps>) | [Apple Maps](<applemaps>) | [Waze](<waze>)');
+    MAIN.Pokemon_Messages['Default_noivs']['fieldtitle'] = [];
+    MAIN.Pokemon_Messages['Default_noivs']['fieldtext'] = [];
+    MAIN.Pokemon_Messages['Default_noivs']['fieldtitle'].push('<geofence> | Directions:');
+    MAIN.Pokemon_Messages['Default_noivs']['fieldtext'].push('[Google Maps](<googlemaps>) | [Apple Maps](<applemaps>) | [Waze](<waze>)');
   }
   console.log('[Pokébot] ['+MAIN.Bot_Time(null,'stamp')+'] Loaded Pokemon Messages.');
 }
