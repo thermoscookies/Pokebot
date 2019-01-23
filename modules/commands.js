@@ -36,7 +36,7 @@ module.exports.run = async (MAIN, message) => {
       // else if(server.donor_role && !member.roles.has(server.donor_role)){ return; }
 
       // LOAD DATABASE RECORD
-      MAIN.database.query("SELECT * FROM pokebot.users WHERE user_id = ?", [message.member.id], function (error, user, fields) {
+      MAIN.database.query("SELECT * FROM pokebot.users WHERE user_id = ? AND discord_id = ?", [message.member.id,server.id], function (error, user, fields) {
         // CHECK IF THE USER HAS AN EXISTING RECORD IN THE USER TABLE
         if(!user || !user[0]){ MAIN.Save_Sub(message,server); }
         else if(user[0].discord_id != message.guild.id){
@@ -64,7 +64,10 @@ module.exports.run = async (MAIN, message) => {
           }
 
           let cmd = MAIN.Commands.get(command);
-          if(cmd){ return cmd.run(MAIN, message, prefix, server); }
+          if(cmd){
+              if (!(message.member.roles.has(server.donor_role))) {return message.channel.send('<@' + message.member.id + '>, '+MAIN.config.TEXTS.NONDONOR).then(m => m.delete(10000)).catch(console.error);}
+            return cmd.run(MAIN, message, prefix, server); 
+          }
         }
       });
     }
